@@ -1,0 +1,36 @@
+# docker-compose down -v -t 0 && docker-compose rm -f -s && docker-compose up --build -d
+# docker-compose exec agendapet-db bash -c 'mysql -u root'
+# docker-compose exec agendapet-db bash -c 'mysql -u root -ppassword agenda-petshop'
+# docker-compose exec agendapet-db bash -c 'mysql -u user1 -ppassword agenda-petshop'
+version: '3.3'
+services:
+  agendapet-db:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'agenda-petshop'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+      #MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
+      MYSQL_TCP_PORT: 33060
+    ports:
+      - '33060:33060'
+    expose:
+      - '33060'
+      
+    #ports:
+    #  - '3306:3306'
+    #expose:
+    #  - '3306'
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 1s
+      interval: 1s
+      retries: 30
+    volumes:
+      - agendapet-db-vol:/var/lib/mysql
+      - ./migrations/:/docker-entrypoint-initdb.d/
+
+volumes:
+  agendapet-db-vol:
